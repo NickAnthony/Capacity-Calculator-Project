@@ -1,0 +1,103 @@
+Capacity Calculator Psuedocode
+
+func humanCheck(sensorList):
+	// Consumes: an array of 3 arrays of 1 reading from each sensor
+	// Produces: a list of booleans that contains a true if there is a person in // the sensor and a false if not
+	// Purpose: checks if there is a person in each sensor
+
+	values = [false, false, false]
+
+	//Loop through sensorList to get array of each sensor
+	for i from 0 to (length(sensorList)-1):
+		var counter = 0
+
+		//Loop through array of that sensor to get individual temperatures
+		for j from 0 to (length(sensorList[i])-1:
+			//if a temperature reads skin temp, add to counter
+			var temp = sensors[i][j]
+			if temp >= 32.5 and temp < 35.5:
+				counter += 1
+
+		//If more than two temperatures registered skin temperature, there is human
+		if counter >= 2:
+			values[i] = true
+
+	return values;	
+
+func analyzeData(sensorList, label):
+	// Consumes: an array of 3 arrays of 1 reading from each sensor and a label to change
+	// Produces: nothing
+	// Purpose: changing capacity of that dining hall (label) based off sensor reading
+
+	//Get list of which sensors went off
+	sensor_list = humanCheck(sensors)
+
+	//If no human is registered, add to a clearCounter
+	if sensor_list[0] == false and sensor_list[1] == false and sensor_list[2] == false:
+		clearCounter++
+		//If one second goes by and no human is registered, reset trigger list
+		//This ensures the list does not contain bad data
+		if clearCounter >= 4:
+			triggerList = []
+
+	//Trigger list key: 1 = sensor 1; 2 = sensor 2; 3 = sensor 3
+	//If a human is registered, add that sensor to the trigger
+	for k from 0 to 2:
+		if sensor_list[k] == true:
+			triggerList.push(k+1)
+			sensorCount++
+
+
+	//Check if there is a line, if there is, add one person every 6 seconds
+	//and ignore regular counting methods
+	if all 3 sensors registered a human:
+		line_check = true
+	else if only 1 sensor registered a human:
+		line_check = false
+		line_counter = 0
+
+	if any sensor registered a human:
+		clearCounter = 0
+
+	sensorCount = 0
+
+	//If there is a line
+	if there is a line:
+		set input label's line check to "Yes"
+		if 5 seconds pass:
+			capacity++
+		
+		set input label's capacity number to the new capacity
+		return
+
+	//If there is no line
+	else:
+		set input label's line check to "No"
+		if 3 sensors registered a human:
+			last = last sensor tripped
+			//Check if a person entered
+			if triggerList[0]  == 1 and last == 3 and sensor 3 isn't being tripped:
+				capacity++
+				clear triggerList
+				clearCounter = 0
+				set input label's capacity number to the new capacity
+				return
+			//Check if a person left
+			if triggerList[0] == 3 and last == 1 and capacity != 0 and sensor 1 isn't being tripped:
+				capacity--
+				clear triggerList
+				set input label's capacity number to the new capacity
+				return
+			//Check if the first trigger was sensor 2 - means false data
+			if triggerList[0] == 2:
+				remove triggerList[0]
+
+		//If the triggerList gets too long, check if someone is standing
+		if length of triggerList == 24:
+			//If someone is standing, reset everything
+			if triggerlist[0] == triggerList[last]:
+				reset triggerList
+				reset clearCounter
+				return
+
+

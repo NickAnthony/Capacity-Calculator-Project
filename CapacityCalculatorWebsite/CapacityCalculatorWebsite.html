@@ -1,0 +1,304 @@
+<doctype html>
+<meta http-equiv="refresh" content="180" >
+<meta content="utf-8" http-equiv="encoding">
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+
+<html width="800">
+	<head>
+		<title>Capacity Calculator</title>
+		<link href="CapCalcDesign.css" rel="stylesheet" type="text/css"/>
+		<link rel="shortcut icon" type="image/ico" href="favicon.ico"/>
+	</head>
+	<body width="800">
+		<h1><img src="BrownU-CoA.svg.png" alt="Brown Logo" style="vertical-align:middle">   Brown Dining Hall Capacities</h1>
+
+		<table width="100%" height="100" background="RattyPhoto.png">
+			<td valign="left">
+			<h3> Ratty </h3>
+			</td>
+		</table>
+		<p>
+			<strong>Percentage Capacity: <span id="rattypercentage">5</span>% </strong>
+			<br/>
+			<br/>
+			Current estimated number of people:
+			<span id="ratty">51</span>
+			<br/>
+			Total Seating Capacity: 984 People
+			<br/>
+			Is there a line to get in:
+			<span id="rattyline">No</span>
+		</p>
+
+		<br/>
+		<table width="100%" height="100" background="VDubPhoto2.png">
+			<td valign="left">
+			<h3> V-Dub </h3>
+			</td>
+		</table>
+		<p>
+			<strong>Percentage Capacity: <span id="vdubpercentage">5</span>% </strong>
+			<br/><br/>
+			Current estimated number of people:
+			<span id="vdub">112</span>
+			<br/>
+			Total Seating Capacity: 375 People
+			<br/>
+			Is there a line to get in:
+			<span id="vdubline">No</span>
+		</p>
+
+		<br/>
+		<table width="100%" height="100" background="AndrewsPhoto2.png">
+			<td valign="left">
+			<h3> Andrews Commons </h3>
+			</td>
+		</table>
+		<p>
+			<strong>Percentage Capacity: <span id="andrewspercentage">5</span>% </strong>
+			<br/><br/>
+			Current estimated number of people:
+			<span id="andrews">275</span>
+			<br/>
+			Total Seating Capacity: 750 People
+			<br/>
+			Is there a line to get in:
+			<span id="andrewsline">No</span>
+		</p>
+
+		<br/>
+		<table width="100%" height="100" background="BlueRoomPhoto2.png">
+			<td valign="left">
+			<h3> Blue Room </h3>
+			</td>
+		</table>
+		<p>
+			<strong>Percentage Capacity: <span id="blueroompercentage">5</span>% </strong>
+			<br/><br/>
+			Current estimated number of people:
+			<span id="blueroom">74</span>
+			<br/>
+			Total Seating Capacity: 100 People
+			<br/>
+			Is there a line to get in:
+			<span id="blueroomline">No</span>
+		</p>
+
+		<br/>
+		<table width="100%" height="100" background="JoesPhoto2.png">
+			<td valign="left">
+			<h3> Joe's </h3>
+			</td>
+		</table>
+		<p>
+			<strong>Percentage Capacity: <span id="joespercentage">5</span>% </strong>
+			<br/><br/>
+			Current estimated number of people:
+			<span id="joes">32</span>
+			<br/>
+			Total Seating Capacity: 396 People
+			<br/>
+			Is there a line to get in:
+			<span id="joesline">No</span>
+		</p>
+
+		<br/>
+		<table width="100%" height="100" background="IvyRoomPhoto2.png">
+			<td valign="left">
+			<h3> Ivy Room </h3>
+			</td>
+		</table>
+		<p>
+			<strong>Percentage Capacity: <span id="ivyroompercentage">5</span>% </strong>
+			<br/><br/>
+			Current estimated number of people:
+			<span id="ivyroom">23</span>
+			<br/>
+			Total Seating Capacity: 185 People
+			<br/>
+			Is there a line to get in:
+			<span id="ivyroomline">No</span>
+		</p>
+	</body>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script>
+		$(function() {
+			$.get("SensorReadings1.json", function(data) {
+				var json = JSON.parse(data);
+				analyzeAll(json, "#ratty", "#rattypercentage", "#rattyline", new CapacityCounter(51), 250, 984);
+			}, "text");
+			$.get("SensorReadings1.json", function(data) {
+				var json = JSON.parse(data);
+				analyzeAll(json, "#vdub", "#vdubpercentage", "#vdubline", new CapacityCounter(112), 400, 375);
+			}, "text");
+			$.get("SensorReadings1.json", function(data) {
+				var json = JSON.parse(data);
+				analyzeAll(json, "#andrews", "#andrewspercentage", "#andrewsline", new CapacityCounter(275), 250, 750);
+			}, "text");
+			$.get("SensorReadings1.json", function(data) {
+				var json = JSON.parse(data);
+				analyzeAll(json, "#blueroom", "#blueroompercentage", "#blueroomline", new CapacityCounter(74), 150, 100);
+			}, "text");
+			$.get("SensorReadings1.json", function(data) {
+				var json = JSON.parse(data);
+				analyzeAll(json, "#joes", "#joespercentage", "#joesline", new CapacityCounter(32), 100, 396);
+			}, "text");
+			$.get("SensorReadings1.json", function(data) {
+				var json = JSON.parse(data);
+				analyzeAll(json, "#ivyroom", "#ivyroompercentage", "#ivyroomline", new CapacityCounter(23), 100, 185);
+			}, "text");
+		});
+		var counter = new CapacityCounter();
+
+		function CapacityCounter(currentCapacity) {
+			this.clearCounter = 0;
+			this.line_check = false;
+			this.line_counter = 0;
+			this.capacity = currentCapacity;
+			this.step = 0;
+			this.percentage = 0;
+			this.triggerList = [];
+		}
+		
+		function analyzeAll(json, label, percentageLabel, lineLabel, counter, timeStep, seatingCap) {
+			/*clearCounter = 0;
+			line_check = false;
+			line_counter = 0;
+			capacity = 51;
+			triggerList = [];
+			step = 0*/
+			// Read through each file, getting one reading (3 arrays) every 250ms
+			
+			setInterval(function() {
+				if (counter.step < json.length) {
+					var v1 = json[counter.step];
+					var v2 = json[counter.step + 1];
+					var v3 = json[counter.step + 2];
+					analyzeData([v1, v2, v3], label, percentageLabel, lineLabel, counter, seatingCap);
+				}
+				counter.step += 3;
+			}, timeStep);
+		}
+		function analyzeData(sensors, label, percentageLabel, lineLabel, counter, seatingCap) {
+			// Consumes: an array of 3 arrays of 1 reading from each sensor 
+			// 		and a label to change
+			// Produces: nothing
+			// Purpose: changing capacity of that dining hall (label) based 
+			// 		off sensor reading
+
+			// Get list of which sensors went off
+			var sensor_list = humanCheck(sensors);
+
+			// If no human is registered
+			if (sensor_list[0] == false && sensor_list[1] == false && sensor_list[2] == false) {
+				counter.clearCounter++;
+				// If one second goes by and no human is registered, reset trigger list
+				if (counter.clearCounter >= 4) {
+					counter.triggerList = [];
+				}
+			}
+
+			// Add tripped sensors to trigger list
+			// For trigger list: 1 is sensor 1, 2 is sensor 2, and 3 is sensor 3
+			var sensorCount = 0;
+			for (var k = 0; k < sensor_list.length; k++) {
+				if (sensor_list[k] == true){
+					counter.triggerList.push(k+1);
+					sensorCount++;
+				}
+			}
+
+			// Check if there is a line, if there is, add one person every 6 seconds
+			// and ignore regular counting methods
+			if (sensorCount == 3) {
+				counter.line_check = true;
+			} else if (sensorCount <= 1) {
+				counter.line_check = false;
+				counter.line_counter = 0;
+			}
+			if (sensorCount > 0) {
+				counter.clearCounter = 0;
+			}
+
+			var sensorCount = 0;
+
+			// If there is a line, add one person every 5 seconds
+			if (counter.line_check) {
+				$(lineLabel).text("Yes");
+				counter.line_counter++;
+				if (counter.line_counter >= 20) {
+					counter.capacity++;
+					counter.line_counter = 0;
+				}
+				$(label).text(counter.capacity); //Update counter.capacity
+				counter.percentage = Math.floor(counter.capacity/seatingCap*100);
+				$(percentageLabel).text(counter.percentage); // Update percentage
+				return;
+			} else { //No line
+				$(lineLabel).text("No");
+				if (counter.triggerList.length >= 3) {
+					var last = counter.triggerList[counter.triggerList.length - 1];
+					// If sensor 2 was tripped first - clear and reading - false data
+					if (counter.triggerList[0] == 2) {
+						counter.triggerList.splice(0,1);
+					}
+					// Check if a person has entered
+					if (counter.triggerList[0]  == 1 && last == 3 && !sensor_list[2]) {
+						counter.capacity++;
+						counter.triggerList = [];
+						counter.clearCounter = 0;
+						$(label).text(counter.capacity); // Update capacity
+						counter.percentage = Math.floor(counter.capacity/seatingCap*100);
+						$(percentageLabel).text(counter.percentage); // Update percentage
+						return;
+					}
+					// Check if a person has left
+					if (counter.triggerList[0] == 3 && last == 1 && counter.capacity != 0 && !sensor_list[0]) {
+						counter.capacity--;
+						counter.triggerList = [];
+						$(label).text(counter.capacity); //Update capacity
+						counter.percentage = Math.floor(counter.capacity/seatingCap*100);
+						$(percentageLabel).text(counter.percentage); // Update percentage
+						return;
+					}
+				}
+				//If 2 seconds go by and a sensors is being tripped - check that someone is standing 2 x 4/s x 3 = 24
+				if (counter.triggerList.length >= 24) {
+					var last = counter.triggerList[counter.triggerList.length - 1];
+					if (counter.triggerList[0] == last) {
+						counter.triggerList = [];
+						counter.clearCounter = 0;
+						return;
+				}
+			}
+		}
+
+		function humanCheck(sensors) {
+			// Consumes: an array of 3 arrays of 1 reading from each sensor
+			// Produces: a list of booleans that contains a true if there 
+			// 		is a person in the sensor and a false if not
+			// Purpose: checks if there is a person in each sensor
+			var values = [false, false, false];
+			//Loop through each sensor array to get individual temperatures
+			for (var i = 0; i < sensors.length; i++) {
+				var counter = 0;
+				for (var j = 0; j < sensors[i].length; j++) {
+					var temp = sensors[i][j];
+					//if a temperature reads skin temp, add to counter
+					if (temp >= 32.5 && temp < 35.5) {
+						counter += 1;
+					}
+				}
+				//If more than two temperatures registered skin temperature, 
+				//there is a person there
+				if (counter >= 2) {
+					values[i] = true;
+				}
+			}
+			return values;	
+		}
+	}
+
+
+	</script>
+</html>
